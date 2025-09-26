@@ -10,11 +10,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/client")
 public class ClientResource {
 
+    private final IRun clientBean;
     private final ClientService service;
 
-    private final IRun clientBean;
-
-    public ClientResource(IRun clientBean, ClientService service) {
+    public ClientResource(ClientService service, IRun clientBean) {
         this.service = service;
         this.clientBean = clientBean;
     }
