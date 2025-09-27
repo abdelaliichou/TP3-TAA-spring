@@ -9,7 +9,7 @@ import java.util.List;
 @Service
 public class BankService implements IBank {
 
-    private final BankRepository repo;
+    private BankRepository repo;
 
     public BankService(BankRepository repo) { this.repo = repo; }
 

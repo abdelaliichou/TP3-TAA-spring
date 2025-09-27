@@ -132,3 +132,101 @@ List<Article> findLowStockExpensiveArticlesNative(int threshold, double minPrice
    -e MYSQL_ROOT_PASSWORD=my-secret-pw \
    -d mysql:latest
 ```
+
+## Documentation : Spring AOP
+### Introduction
+
+La programmation orientée aspect (AOP) est un paradigme qui permet de séparer les préoccupations transversales (logging, sécurité, transactions, etc.) de la logique métier principale.
+Au lieu d’ajouter du code de logging ou de sécurité dans chaque méthode, on définit ces comportements dans des aspects, et Spring s’occupe de les appliquer automatiquement.
+
+### Concepts clés
+
+*  Aspect → Module qui contient du code transversal (logging, sécurité, transactions).
+→ Défini par une classe annotée @Aspect.
+
+* Join point → Point d’exécution du programme où un aspect peut intervenir.
+→ Exemple : l’appel d’une méthode publique dans un service.
+
+* Pointcut → Expression qui définit où (quels join points) un aspect doit s’appliquer.
+→ Exemple : execution(* com.example.magasin.service..*(..)) cible toutes les méthodes publiques des services.
+
+* Advice (Greffon) → Le code à exécuter avant, après, ou autour du join point.
+
+* * @Before → exécuté avant la méthode cible
+
+* * @AfterReturning → exécuté après la méthode, si elle réussit
+
+* * @AfterThrowing → exécuté si une exception est lancée
+
+* * @Around → entoure l’appel, permet de bloquer ou modifier l’exécution
+
+* Weaving (Tissage) → Processus qui insère les aspects dans le code cible. Avec Spring, cela se fait dynamiquement au runtime via des proxies.
+
+* Cross-cutting concerns (Préoccupations transversales) → Fonctions communes à plusieurs modules qui ne concernent pas directement la logique métier.
+→ Exemple : sécurité, journalisation, gestion des transactions.
+
+#### Exemple d’Aspect 1 : Logging
+````
+@Aspect
+@Component
+public class LoggingAspect {
+
+    @Before("execution(public * com.example.magasin.service..*(..))")
+    public void logBefore(JoinPoint joinPoint) {
+        String className = joinPoint.getTarget().getClass().getSimpleName();
+        String methodName = joinPoint.getSignature().getName();
+        System.out.println("TRACE -> Classe: " + className + ", Méthode: " + methodName);
+    }
+}
+````
+
+Cet aspect trace toutes les méthodes publiques des services avant leur exécution.
+
+#### Exemple d’Aspect 2 : Sécurité
+````
+@Aspect
+@Component
+public class SecurityAspect {
+
+    @Around("execution(* com.example.magasin.service.StoreService.*(..))")
+    public Object checkSecurity(ProceedingJoinPoint pjp) throws Throwable {
+        System.out.println("SECURITY -> Vérification des droits pour: " + pjp.getSignature().getName());
+
+        boolean authorized = true; // simulation d'une règle de sécurité
+        if (!authorized) {
+            throw new RuntimeException("Accès refusé !");
+        }
+
+        return pjp.proceed(); // exécute la méthode si autorisé
+    }
+}
+````
+
+Cet aspect intercepte toutes les méthodes de StoreService et applique un contrôle de sécurité avant leur exécution.
+
+#### Bénéfices de Spring AOP
+
+Séparation des responsabilités → la logique métier reste claire, les préoccupations techniques sont externalisées.
+
+Maintenabilité → un seul aspect gère un comportement global (ex : logs), pas besoin de répéter du code.
+
+Réutilisabilité → un aspect peut être appliqué à plusieurs beans sans modification.
+
+Flexibilité → on peut ajouter ou modifier un aspect sans toucher au code métier.
+
+#### Schéma récapitulatif
+````
++-----------------+       +-------------------+
+|     Service     | <---> |   Repository JPA  |
++-----------------+       +-------------------+
+|
+V
+[ Join point ]
+|
++-----------------+
+|     Aspect      |
+| (Log / Security)|
++-----------------+
+````
+
+Avec AOP, ton code métier (banque, magasin, fournisseur, client) reste concentré sur les scénarios tandis que les aspects (logging, sécurité) sont ajoutés automatiquement par Spring.
