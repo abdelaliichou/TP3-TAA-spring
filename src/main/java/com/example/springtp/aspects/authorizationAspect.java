@@ -12,7 +12,7 @@ public class authorizationAspect {
     // works exactly like Node.js authorization middleware functions
 
     // Pointcut : all the StoreService functions
-    @Around("execution(* com.example.springtp.service.StoreService.*(..))")
+    @Around("execution(* com.example.springtp.service.PlayersService.*(..))")
     public Object checkSecurity(ProceedingJoinPoint pjp) throws Throwable {
 
         // @Around → the execution will be within the real function, and we can decide if we run it or not
