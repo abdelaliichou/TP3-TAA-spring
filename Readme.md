@@ -125,6 +125,7 @@ List<Article> findLowStockExpensiveArticlesNative(int threshold, double minPrice
 ```
 * nativeQuery = true → Spring exécute exactement le SQL que tu écris.
 
+---
 ### Run MySQL container
 ```
    docker run --name some-mysql \
@@ -132,6 +133,8 @@ List<Article> findLowStockExpensiveArticlesNative(int threshold, double minPrice
    -e MYSQL_ROOT_PASSWORD=my-secret-pw \
    -d mysql:latest
 ```
+
+---
 
 ## Documentation : Spring AOP
 ### Introduction
@@ -230,3 +233,271 @@ V
 ````
 
 Avec AOP, ton code métier (banque, magasin, fournisseur, client) reste concentré sur les scénarios tandis que les aspects (logging, sécurité) sont ajoutés automatiquement par Spring.
+
+---
+
+## 🆚 Classic Spring vs Spring Boot + Spring Data JPA
+
+````markdown
+
+This document compares how we used to build applications with **classic Spring (manual DAOs, XML/annotations)** versus the modern approach with **Spring Boot + Spring Data JPA**.  
+It highlights the evolution in **dependency injection, repositories, queries, beans, entity managers, aspects, transactions, and startup**.
+
+---
+
+## **1. Repository / DAO Layer**
+
+### Old way (manual DAO with EntityManager):
+```java
+@Repository
+public class PlayerDao extends AbstractJpaDao<Long, Player> implements facade.PlayerDao {
+
+    public PlayerDao() {
+        super(Player.class);
+    }
+
+    @Override
+    public Player findByEmail(String email) {
+        try {
+            return entityManager.createQuery(
+                "SELECT p FROM Player p WHERE p.email = :email",
+                Player.class
+            ).setParameter("email", email)
+             .getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+}
+````
+
+* Uses `EntityManager` directly
+* Manual queries (JPQL/SQL)
+* Lots of boilerplate (try/catch, parameters, etc.)
+
+### New way (Spring Data JPA):
+
+```java
+@Repository
+public interface PlayerRepository extends JpaRepository<Player, Long> {
+    Player findByEmail(String email);
+}
+```
+
+* Extends `JpaRepository`
+* CRUD is built-in (`save`, `findAll`, `delete`)
+* Queries auto-generated from method names
+* For complex queries → `@Query`
+
+**Shift**: From *manual queries and DAO classes* → to *declarative interfaces*.
+
+---
+
+## **2. Dependency Injection (DI)**
+
+### Old way:
+
+```java
+@Service
+public class PlayerService {
+    @Autowired
+    private PlayerDao playerDao;
+}
+```
+
+* Field injection (`@Autowired`)
+* Sometimes setter injection or XML configs
+
+### New way:
+
+```java
+@Service
+public class PlayerService {
+    private final PlayerRepository playerRepo;
+
+    public PlayerService(PlayerRepository playerRepo) {
+        this.playerRepo = playerRepo;
+    }
+}
+```
+
+* Constructor injection (cleaner, testable)
+* Spring automatically injects the bean
+
+---
+
+## **3. Entity Management**
+
+### Old way:
+
+```java
+@PersistenceContext
+private EntityManager entityManager;
+```
+
+* Directly use `persist`, `merge`, `remove`
+* Needed in every DAO
+
+### New way:
+
+* Rarely used directly
+* Hidden behind Spring Data (`JpaRepository`)
+* EntityManager only for advanced custom queries
+
+---
+
+## **4. Beans and Container**
+
+### Old way:
+
+XML configuration:
+
+```xml
+<bean id="playerDao" class="com.example.PlayerDao"/>
+```
+
+* Or Java config with `@Bean`
+* Spring ApplicationContext managed beans manually
+
+### New way:
+
+* Annotations only (`@Entity`, `@Repository`, `@Service`, `@RestController`)
+* `@SpringBootApplication` → component scan & auto-config
+* No XML needed
+
+---
+
+## **5. Interfaces vs Classes**
+
+* **Old**: often injected **concrete classes** (`new PlayerDao()`) → tight coupling
+* **New**: inject **interfaces** (`PlayerRepository`) → Spring provides implementation (proxy)
+
+Follows **Inversion of Control (IoC)** → code depends on abstractions, not implementations.
+
+---
+
+## **6. Annotations**
+
+* **Old**: mixed XML + annotations (`@Repository`, `@Service`, `@Autowired`)
+* **New**: fully annotation-driven
+
+    * `@SpringBootApplication`
+    * `@Entity`, `@Repository`, `@Service`, `@RestController`
+    * `@Query` for custom queries
+    * `@Transactional` for transaction management
+
+---
+
+## **7. Queries**
+
+### Old way:
+
+```
+entityManager.createQuery(
+  "SELECT p FROM Player p WHERE p.email = :email"
+).setParameter("email", email).getSingleResult();
+```
+
+### New way:
+
+```java
+Player findByEmail(String email);
+
+@Query("SELECT p FROM Player p WHERE p.score > :minScore")
+List<Player> findTopPlayers(@Param("minScore") int minScore);
+```
+
+Describe **what** you want, not **how** to query.
+
+---
+
+## **8. Aspects (AOP)**
+
+### Old way:
+
+* Aspects wired in XML or logging added directly inside services
+
+### New way:
+
+```java
+@Aspect
+@Component
+public class LogAspect {
+    @Before("execution(* com.example..*(..))")
+    public void log(JoinPoint jp) {
+        System.out.println("Method called: " + jp.getSignature());
+    }
+}
+```
+
+---
+
+## **9. Transactions**
+
+### Old way:
+
+```
+entityManager.getTransaction().begin();
+// ...
+entityManager.getTransaction().commit();
+```
+
+Or via XML `<tx:advice>`.
+
+### New way:
+
+```
+@Transactional
+public void transferMoney(...) { ... }
+```
+
+Automatic transaction handling.
+
+---
+
+## **10. Application Startup**
+
+### Old way:
+
+* Deploy WAR to external Tomcat/Glassfish
+* Complex configuration
+
+### New way:
+
+* Boot embeds Tomcat/Jetty
+* Run with:
+
+  ```bash
+  ./mvnw spring-boot:run
+  ```
+
+  or
+
+  ```bash
+  java -jar target/app.jar
+  ```
+* Production-ready features (health checks, metrics) built-in
+
+---
+
+# Big Picture
+
+| Feature            | Old Spring (manual)                 | New Spring Boot + Spring Data JPA  |
+| ------------------ | ----------------------------------- | ---------------------------------- |
+| **DAO/Repository** | Hand-coded DAO with `EntityManager` | `JpaRepository` interface          |
+| **Queries**        | Manual JPQL/SQL                     | Method names + `@Query`            |
+| **DI**             | `@Autowired` fields / XML           | Constructor injection              |
+| **EntityManager**  | Explicit use                        | Hidden behind Spring Data          |
+| **Beans**          | Declared manually                   | Auto-scanned by Boot               |
+| **Interfaces**     | Often skipped                       | Always injected, proxies generated |
+| **Aspects**        | Manual or XML                       | Declarative `@Aspect`              |
+| **Transactions**   | Manual / XML                        | `@Transactional`                   |
+| **Startup**        | External server (WAR)               | Embedded server (fat JAR)          |
+| **Focus**          | Boilerplate & plumbing              | Business logic                     |
+
+---
+
+## Summary
+
+* **Classic Spring**: taught the mechanics (beans, DI, AOP, JPA), but required lots of configuration and boilerplate.
+* **Spring Boot + Spring Data JPA**: convention-over-configuration, removes boilerplate, lets you focus on **business features**.
