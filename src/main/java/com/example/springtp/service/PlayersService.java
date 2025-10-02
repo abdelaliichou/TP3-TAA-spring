@@ -1,6 +1,7 @@
 package com.example.springtp.service;
 
 import com.example.springtp.domain.Player;
+import com.example.springtp.domain.SQLQueries;
 import com.example.springtp.dto.ParticipationDto;
 import com.example.springtp.dto.PlayerDto;
 import com.example.springtp.dto.QuizDto;
@@ -49,15 +50,66 @@ public class PlayersService {
     }
 
     public void save(PlayerDto entity) {
-        if (entity == null) {
-            return;
+
+        if (entity == null) return;
+
+        Player player = playerMapper.toEntity(entity);
+
+        // Integrity 1: Email must be unique
+        if (playerRepository.existsByEmail(player.getEmail())) {
+            throw new IllegalStateException("Email already exists: " + player.getEmail());
         }
 
-        playerRepository.save(playerMapper.toEntity(entity));
+        // Integrity 2: Email must be valid format
+        if (!player.getEmail().matches(SQLQueries.EMAIL_REGEX)) {
+            throw new IllegalArgumentException("Invalid email format: " + player.getEmail());
+        }
+
+        // Integrity 3: Role must be AUTHOR or PLAYER
+        if (!SQLQueries.Roles.TEACHER.name().equals(player.getRole())
+                && !SQLQueries.Roles.STUDENT.name().equals(player.getRole()))
+        {
+            throw new IllegalArgumentException("Invalid role: " + player.getRole());
+        }
+
+        // Integrity 4: Nickname must not be empty
+        if (player.getName() == null || player.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Nickname cannot be empty.");
+        }
+
+        playerRepository.save(player);
     }
 
     public PlayerDto update(PlayerDto entity) {
-        return null;
+
+        if (entity == null) return null;
+
+        Player player = playerMapper.toEntity(entity);
+
+        // Integrity 1: Email must be unique
+        if (playerRepository.existsByEmail(player.getEmail())) {
+            throw new IllegalStateException("Email already exists: " + player.getEmail());
+        }
+
+        // Integrity 2: Email must be valid format
+        if (!player.getEmail().matches(SQLQueries.EMAIL_REGEX)) {
+            throw new IllegalArgumentException("Invalid email format: " + player.getEmail());
+        }
+
+        // Integrity 3: Role must be AUTHOR or PLAYER
+        if (!SQLQueries.Roles.TEACHER.name().equals(player.getRole())
+                && !SQLQueries.Roles.STUDENT.name().equals(player.getRole()))
+        {
+            throw new IllegalArgumentException("Invalid role: " + player.getRole());
+        }
+
+        // Integrity 4: Nickname must not be empty
+        if (player.getName() == null || player.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Nickname cannot be empty.");
+        }
+
+        Player result = playerRepository.save(player);
+        return playerMapper.toDto(result);
     }
 
     public void delete(PlayerDto entity) {
@@ -69,11 +121,19 @@ public class PlayersService {
     }
 
     public void deleteById(Long entityId) {
-        if (entityId == null) {
-            return;
+
+        if (entityId == null) return;
+
+        Player player = playerRepository.findById(entityId).orElseThrow(
+                () -> new IllegalArgumentException("Player not found.")
+        );
+
+        // Integrity 5: Prevent deleting if still author of quizzes
+        if (!playerRepository.findQuizByPlayer(entityId).isEmpty()) {
+            throw new IllegalStateException("Cannot delete player: still author of quizzes.");
         }
 
-        playerRepository.deleteById(entityId);
+        playerRepository.delete(player);
     }
 
     public PlayerDto findByEmail(String email) {

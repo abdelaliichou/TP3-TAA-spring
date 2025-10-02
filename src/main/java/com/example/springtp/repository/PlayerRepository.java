@@ -13,13 +13,13 @@ import java.util.List;
 public interface PlayerRepository extends JpaRepository<Player, Long> {
 
     @Query(SQLQueries.playerFindByEmail)
-    public Player findByEmail(String email);
+    Player findByEmail(String email);
 
     @Query(SQLQueries.playerFindQuizByPlayer)
-    public List<Quiz> findQuizByPlayer(Long playerId) ;
+    List<Quiz> findQuizByPlayer(Long playerId) ;
 
     @Query(SQLQueries.playerFindParticipationsByPlayer)
-    public List<Participation> findParticipationsByPlayer(Long playerId);
+    List<Participation> findParticipationsByPlayer(Long playerId);
 
     @Query(SQLQueries.playerAuthenticate)
     boolean existsByEmail(String email);

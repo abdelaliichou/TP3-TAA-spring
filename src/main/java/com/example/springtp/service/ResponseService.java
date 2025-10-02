@@ -34,24 +34,24 @@ public class ResponseService {
         return optionalResponse.map(responseMapper::toDto).orElse(null);
     }
 
-    public List<Response> findAll() {
-        return responseRepository.findAll();
+    public List<ResponseDto> findAll() {
+        return responseMapper.toDtoList(responseRepository.findAll());
     }
 
-    public void save(Response entity) {
+    public void save(ResponseDto entity) {
         if (entity == null) {
             return;
         }
 
-        responseRepository.save(entity);
+        responseRepository.save(responseMapper.toEntity(entity));
     }
 
-    public void delete(Response entity) {
+    public void delete(ResponseDto entity) {
         if (entity == null) {
             return;
         }
 
-        responseRepository.delete(entity);
+        responseRepository.delete(responseMapper.toEntity(entity));
     }
 
     public void deleteById(Long entityId) {
@@ -62,15 +62,19 @@ public class ResponseService {
         responseRepository.deleteById(entityId);
     }
 
-    public Response update(Response entity) {
+    public ResponseDto update(ResponseDto entity) {
         return null;
     }
 
-    public List<Response> findByQuestion(Long questionId) {
-        return List.of();
+    public List<ResponseDto> findByQuestion(Long questionId) {
+        return responseMapper.toDtoList(responseRepository.findByQuestion(questionId));
     }
 
-    public List<Response> findCorrectResponsesByQuestion(Long questionId) {
-        return List.of();
+    public List<ResponseDto> findCorrectResponsesByQuestion(Long questionId) {
+        List<Response> allResponses = responseRepository.findByQuestion(questionId);
+        List<Response> correctResponses = allResponses.stream()
+                .filter(Response::getIsCorrect)
+                .toList();
+        return responseMapper.toDtoList(correctResponses);
     }
 }

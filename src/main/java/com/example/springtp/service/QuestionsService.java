@@ -1,12 +1,12 @@
 package com.example.springtp.service;
 
 import com.example.springtp.domain.Question;
-import com.example.springtp.domain.Response;
 import com.example.springtp.dto.QuestionDto;
+import com.example.springtp.dto.ResponseDto;
 import com.example.springtp.mapper.QuestionMapper;
+import com.example.springtp.mapper.ResponseMapper;
 import com.example.springtp.repository.QuestionRepository;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -18,10 +18,12 @@ public class QuestionsService {
 
     private final QuestionRepository questionRepository;
     private final QuestionMapper questionMapper;
+    private final ResponseMapper responseMapper;
 
-    public QuestionsService(QuestionRepository questionDao, QuestionMapper questionMapper) {
+    public QuestionsService(QuestionRepository questionDao, QuestionMapper questionMapper, ResponseMapper responseMapper) {
         this.questionRepository = questionDao;
         this.questionMapper = questionMapper;
+        this.responseMapper = responseMapper;
     }
 
     public QuestionDto findOne(Long id) {
@@ -33,24 +35,24 @@ public class QuestionsService {
         return optionalQuestion.map(questionMapper::toDto).orElse(null);
     }
 
-    public List<Question> findAll() {
-        return questionRepository.findAll();
+    public List<QuestionDto> findAll() {
+        return questionMapper.toDtoList(questionRepository.findAll());
     }
 
-    public void save(Question entity) {
+    public void save(QuestionDto entity) {
         if (entity == null) {
             return;
         }
 
-        questionRepository.save(entity);
+        questionRepository.save(questionMapper.toEntity(entity));
     }
 
-    public void delete(Question entity) {
+    public void delete(QuestionDto entity) {
         if (entity == null) {
             return;
         }
 
-        questionRepository.delete(entity);
+        questionRepository.delete(questionMapper.toEntity(entity));
     }
 
     public void deleteById(Long entityId) {
@@ -61,23 +63,43 @@ public class QuestionsService {
         questionRepository.deleteById(entityId);
     }
 
-    public Question update(Question entity) {
+    public QuestionDto update(QuestionDto entity) {
         return null;
     }
 
-    public List<Question> findByQuiz(Long quizId) {
-        return List.of();
+    public List<QuestionDto> findByQuiz(Long quizId) {
+        return questionMapper.toDtoList(questionRepository.findByQuiz(quizId));
     }
 
-    public List<Response> findResponsesByQuestion(Long questionId) {
-        return List.of();
+    public List<ResponseDto> findResponsesByQuestion(Long questionId) {
+        return responseMapper.toDtoList(questionRepository.findResponsesByQuestion(questionId));
     }
 
-    public void addResponseToQuestion(Long questionId, Response response) {}
+    public void addResponseToQuestion(Long questionId, ResponseDto response) {
+        Question question = questionRepository.findById(questionId).orElseThrow(
+                () -> new RuntimeException("Question not found")
+        );
 
-    public void removeResponseFromQuestion(Long questionId, Long responseId) {}
+        question.getReponses().add(responseMapper.toEntity(response));
+        questionRepository.save(question);
+    }
+
+    public void removeResponseFromQuestion(Long questionId, Long responseId) {
+        Question question = questionRepository.findById(questionId).orElseThrow(
+                () -> new RuntimeException("Question not found")
+        );
+
+        // Remove the response by its ID
+        question.getReponses().removeIf(r -> r.getId().equals(responseId));
+        questionRepository.save(question);
+    }
 
     public boolean checkAnswer(Long questionId, Long responseId) {
-        return false;
+        Question question = questionRepository.findById(questionId).orElseThrow(
+                () -> new RuntimeException("Question not found")
+        );
+        return question.getReponses().stream().anyMatch(r ->
+                r.getId().equals(responseId) && Boolean.TRUE.equals(r.getIsCorrect())
+        );
     }
 }

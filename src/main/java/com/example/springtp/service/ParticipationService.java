@@ -58,7 +58,7 @@ public class ParticipationService {
         return participationRepository.findByQuiz(quizId);
     }
 
-    public int calculateScore(Long participationId) {
+    public float calculateScore(Long participationId) {
         return participationRepository.calculateScore(participationId);
     }
 }

@@ -5,6 +5,9 @@ public class SQLQueries {
         STUDENT, TEACHER
     }
 
+    final public static String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+
+    final public static String playerFindByID = "SELECT p FROM Player p WHERE p.email = :email";
     final public static String playerFindByEmail = "SELECT p FROM Player p WHERE p.email = :email";
     final public static String playerFindQuizByPlayer = "SELECT q FROM Quiz q WHERE q.author.id = :playerId";
     final public static String playerFindParticipationsByPlayer = "SELECT p FROM Participation p WHERE p.player.id = :playerId";
@@ -31,7 +34,22 @@ public class SQLQueries {
 
     final public static String removeQuestionFromQuiz = "DELETE FROM question WHERE id = :questionId AND quiz_id = :quizId";
 
+    // --- JPQL Queries for Response ---
+    final public static String responsesFindWithQuestions = "SELECT p FROM Response p WHERE p.question.id = :questionId";
 
+    final public static String correctResponsesByQuestion = "SELECT p FROM response p WHERE p.question.id = :questionId AND r.isCorrect = true";
+
+    // --- JPQL Queries for Question ---
+    final public static String questionsFindByQuiz = "SELECT p FROM Question p WHERE p.quiz.id = :quizId";
+
+    // --- JPQL Queries for Participation ---
+    final public static String calculateScore = """
+        SELECT COUNT(r.id)
+        FROM participation_responses pr
+        JOIN response r ON r.id = pr.response_id
+        WHERE pr.participation_id = :participationId
+        AND r.is_correct = true
+    """;
 
     // TODO same jpql queries for -> Participation | Quiz | Question | Response
 
