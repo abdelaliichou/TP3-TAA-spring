@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" th:href="@{/css/playerForm.css}">
+    </head>
+    <body>
+        <form th:action="@{/view/quiz/save}" method="post">
+            <div class="logo-container"><img th:src="@{/images/istic.png}" alt="Logo"></div>
+            <h2>Créer un Quiz</h2>
+
+            <label for="title">Titre :</label>
+            <input type="text" id="title" name="title" required>
+
+            <label for="description">Description :</label>
+            <input type="text" id="description" name="description" required>
+
+            <label for="author">Auteur :</label>
+            <select id="author" name="authorId" required>
+                <option th:each="player : ${players}" th:value="${player.id}" th:text="${player.name}"></option>
+            </select>
+
+            <input type="submit" value="Ajouter Quiz"/>
+        </form>
+    </body>
+</html>

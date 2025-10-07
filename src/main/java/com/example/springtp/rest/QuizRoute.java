@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -28,6 +29,7 @@ public class QuizRoute {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     @Operation(
             summary = "Get all quizzes",
             description = "Returns a list of all quizzes",
@@ -50,6 +52,7 @@ public class QuizRoute {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     @Operation(
             summary = "Get quiz by ID",
             description = "Fetches a quiz by its ID",
@@ -81,6 +84,7 @@ public class QuizRoute {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('TEACHER')")
     @Operation(
             summary = "Create a new quiz",
             description = "Creates a new quiz in the system",
@@ -108,6 +112,7 @@ public class QuizRoute {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('TEACHER')")
     @Operation(
             summary = "Update a quiz",
             description = "Updates an existing quiz by ID",
@@ -145,6 +150,7 @@ public class QuizRoute {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('TEACHER')")
     @Operation(
             summary = "Delete a quiz",
             description = "Deletes a quiz by ID",
@@ -177,6 +183,7 @@ public class QuizRoute {
     }
 
     @GetMapping("/author/{authorId}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     @Operation(
             summary = "Get quizzes by author",
             description = "Fetches all quizzes created by a specific author",
@@ -208,6 +215,7 @@ public class QuizRoute {
     }
 
     @GetMapping("/{id}/questions")
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     @Operation(
             summary = "Get questions of a quiz",
             description = "Fetches all questions belonging to a quiz",
@@ -239,6 +247,7 @@ public class QuizRoute {
     }
 
     @GetMapping("/{id}/participations")
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     @Operation(
             summary = "Get participations of a quiz",
             description = "Fetches all participations of a quiz",
@@ -270,6 +279,7 @@ public class QuizRoute {
     }
 
     @PostMapping("/author/{authorId}")
+    @PreAuthorize("hasRole('TEACHER')")
     @Operation(
             summary = "Create a quiz with a specific author",
             description = "Creates a quiz with title and description associated with an author",
@@ -308,6 +318,7 @@ public class QuizRoute {
     }
 
     @PostMapping("/{id}/questions")
+    @PreAuthorize("hasRole('TEACHER')")
     @Operation(
             summary = "Add question to a quiz",
             description = "Adds a new question to an existing quiz",
@@ -335,6 +346,7 @@ public class QuizRoute {
     }
 
     @DeleteMapping("/{quizId}/questions/{questionId}")
+    @PreAuthorize("hasRole('TEACHER')")
     @Operation(
             summary = "Remove a question from a quiz",
             description = "Removes a question from a quiz by ID",

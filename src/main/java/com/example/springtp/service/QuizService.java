@@ -103,7 +103,7 @@ public class QuizService  {
         }
 
         // Integrity rule 2: Author cannot have duplicate quiz titles
-        boolean exists = quizRepository.existsByAuthorIdAndTitre(authorId, titre);
+        boolean exists = quizRepository.existsByAuthorIdAndTitle(authorId, titre);
         if (exists) {
             throw new IllegalStateException("This author already has a quiz with the same title.");
         }

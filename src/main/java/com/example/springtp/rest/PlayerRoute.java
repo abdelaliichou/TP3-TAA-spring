@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class PlayerRoute {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     @Operation(
             summary = "Get all players",
             description = "Returns a list of all players",
@@ -48,6 +50,7 @@ public class PlayerRoute {
     }
 
     @GetMapping("/email/{email}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     @Operation(
             summary = "Get player by email",
             description = "Fetches a player using their email address",
@@ -79,6 +82,7 @@ public class PlayerRoute {
     }
 
     @PostMapping("/auth")
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     @Operation(
             summary = "Authenticate a player",
             description = "Authenticate a player using email",
@@ -109,6 +113,7 @@ public class PlayerRoute {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     @Operation(
             summary = "Get player by ID",
             description = "Fetches a player by their ID",
@@ -140,6 +145,7 @@ public class PlayerRoute {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('TEACHER')")
     @Operation(
             summary = "Add a new player",
             description = "Creates a new player in the system",
@@ -170,6 +176,7 @@ public class PlayerRoute {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     @Operation(
             summary = "Update a player",
             description = "Updates an existing player's information",
@@ -207,6 +214,7 @@ public class PlayerRoute {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('TEACHER')")
     @Operation(
             summary = "Delete a player",
             description = "Deletes a player by ID",
@@ -239,6 +247,7 @@ public class PlayerRoute {
     }
 
     @GetMapping("/{id}/quizzes")
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     @Operation(
             summary = "Get quizzes of a player",
             description = "Fetches all quizzes authored by a given player",
@@ -270,6 +279,7 @@ public class PlayerRoute {
     }
 
     @GetMapping("/{id}/participations")
+    @PreAuthorize("hasAnyRole('TEACHER', 'STUDENT')")
     @Operation(
             summary = "Get participations of a player",
             description = "Fetches all participations of a given player",

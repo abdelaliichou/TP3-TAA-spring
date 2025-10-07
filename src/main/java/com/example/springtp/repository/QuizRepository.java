@@ -36,5 +36,5 @@ public interface QuizRepository extends JpaRepository<Quiz, Long>{
     @Query(value = SQLQueries.removeQuestionFromQuiz, nativeQuery = true)
     void removeQuestionFromQuiz(Long quizId, Long questionId);
 
-    boolean existsByAuthorIdAndTitre(Long authorId, String titre);
+    boolean existsByAuthorIdAndTitle(Long authorId, String titre);
 }
