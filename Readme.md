@@ -559,13 +559,13 @@ public ResponseEntity<List<PlayerDto>> getAllPlayers() {
 ```mermaid
 flowchart TD
     subgraph Spring_Security
-        A[WebSecurityConfig (prod)] -->|JWT, roles, restrictions| B[Secured Routes (@PreAuthorize)]
-        C[DevSecurityConfig (dev)] -->|All allowed| B
+        A[WebSecurityConfig (prod)] --> B[Secured Routes (@PreAuthorize)]
+        C[DevSecurityConfig (dev)] --> B
     end
 
-    D[SecurityRoute (MVC Controller)] -->|Display views by role| B
-    E[REST Controllers (PlayerRoute...)] -->|@PreAuthorize endpoints| B
-    F[Client REST/Postman] -->|JWT Bearer Token| B
+    D[SecurityRoute (MVC Controller)] --> B
+    E[REST Controllers (PlayerRoute...)] --> B
+    F[Client REST/Postman] --> B
 ```
 * `WebSecurityConfig.java` : Active en production `(@Profile("!dev"))`.
     * Configure l’accès aux routes selon les rôles (`TEACHER`, `STUDENT`) extraits du token JWT.
