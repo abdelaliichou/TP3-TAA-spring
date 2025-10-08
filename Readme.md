@@ -559,11 +559,12 @@ public ResponseEntity<List<PlayerDto>> getAllPlayers() {
 ```mermaid
 flowchart TD
     subgraph "Spring Security"
-        A[WebSecurityConfig<br/>(prod)] -- JWT, rôles, restrictions --> B[Routes sécurisées<br/>(@PreAuthorize)]
-        C[DevSecurityConfig<br/>(dev)] -- Tout autorisé --> B
+        A[WebSecurityConfig\n(prod)] -- JWT, rôles, restrictions --> B[Routes sécurisées\n(@PreAuthorize)]
+        C[DevSecurityConfig\n(dev)] -- Tout autorisé --> B
     end
-    D[securityRoute<br/>(Contrôleur MVC)] -- Affiche vues selon rôle --> B
-    E[REST Controllers<br/>(PlayerRoute...)] -- @PreAuthorize sur endpoints --> B
+
+    D[securityRoute\n(Contrôleur MVC)] -- Affiche vues selon rôle --> B
+    E[REST Controllers\n(PlayerRoute...)] -- @PreAuthorize sur endpoints --> B
     F[Client REST/Postman] -- JWT Bearer Token --> B
 ```
 * `WebSecurityConfig.java` : Active en production `(@Profile("!dev"))`.
