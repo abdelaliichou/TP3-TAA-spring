@@ -558,11 +558,14 @@ public ResponseEntity<List<PlayerDto>> getAllPlayers() {
 
 ```mermaid
 flowchart TD
-    A[WebSecurityConfig (prod)] --> B[Routes sécurisées (@PreAuthorize)]
-    C[DevSecurityConfig (dev)] --> B
-    D[securityRoute (Contrôleur MVC)] --> B
-    E[REST Controllers (PlayerRoute...)] --> B
-    F[Client REST/Postman] --> B
+    subgraph Spring_Security
+        A["WebSecurityConfig (prod)"] -->|JWT, roles, restrictions| B["Secured Routes (@PreAuthorize)"]
+        C["DevSecurityConfig (dev)"] -->|All allowed| B
+    end
+
+    D["SecurityRoute (MVC Controller)"] -->|Display views by role| B
+    E["REST Controllers (PlayerRoute...)"] -->|"@PreAuthorize endpoints"| B
+    F[Client REST/Postman] -->|JWT Bearer Token| B
 ```
 Légende :
 
