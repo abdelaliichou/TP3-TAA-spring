@@ -558,14 +558,20 @@ public ResponseEntity<List<PlayerDto>> getAllPlayers() {
 
 ```mermaid
 flowchart TD
-    subgraph Spring_Security
-        A[WebSecurityConfig (prod)] --|JWT, rôles, restrictions|--> B[Routes sécurisées (@PreAuthorize)]
-        C[DevSecurityConfig (dev)] --|Tout autorisé|--> B
-    end
-    D[securityRoute (Contrôleur MVC)] --|Affiche vues selon rôle|--> B
-    E[REST Controllers (PlayerRoute...)] --|@PreAuthorize sur endpoints|--> B
-    F[Client REST/Postman] --|JWT Bearer Token|--> B
+    A[WebSecurityConfig (prod)] --> B[Routes sécurisées (@PreAuthorize)]
+    C[DevSecurityConfig (dev)] --> B
+    D[securityRoute (Contrôleur MVC)] --> B
+    E[REST Controllers (PlayerRoute...)] --> B
+    F[Client REST/Postman] --> B
 ```
+Légende :
+
+* WebSecurityConfig (prod) : JWT, rôles, restrictions
+* DevSecurityConfig (dev) : Tout autorisé (bypass sécurité)
+* securityRoute : Affiche vues selon rôle
+* REST Controllers : @PreAuthorize sur endpoints
+* Client REST/Postman : JWT Bearer Token
+
 * `WebSecurityConfig.java` : Active en production `(@Profile("!dev"))`.
     * Configure l’accès aux routes selon les rôles (`TEACHER`, `STUDENT`) extraits du token JWT.
     * Utilise les claims `realm_access.roles` pour mapper les rôles Keycloak vers Spring Security.
