@@ -751,7 +751,9 @@ public Object checkSecurity(ProceedingJoinPoint pjp) throws Throwable {
 
 ## Lancer l’application avec docker
 
-`docker compose up --build`
+```
+docker compose up --build
+```
 
 1. Accéder à `http://localhost:9000/view/player` pour gérer les joueurs
 2. Accéder à `http://localhost:9000/view/quiz` pour gérer les quizzes
