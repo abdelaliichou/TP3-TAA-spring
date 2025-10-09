@@ -1,12 +1,18 @@
 package com.example.springtp.domain;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class Quiz implements Serializable {
 
     @Id
@@ -27,9 +33,6 @@ public class Quiz implements Serializable {
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL)
     private List<Participation> participations = new ArrayList<>();
 
-
-    public Quiz() {}
-
     public Quiz(
             String title,
             String description
@@ -38,49 +41,4 @@ public class Quiz implements Serializable {
         this.description=  description;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return this.description;
-    }
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Player getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(Player author) {
-        this.author = author;
-    }
-
-    public List<Question> getQuestions() {
-        return questions;
-    }
-
-    public void setQuestions(List<Question> questions) {
-        this.questions = questions;
-    }
-
-    public List<Participation> getParticipations() {
-        return participations;
-    }
-
-    public void setParticipations(List<Participation> participations) {
-        this.participations = participations;
-    }
 }

@@ -206,7 +206,7 @@ classDiagram
 ```
 ---
 
-### 3.2. Description des entités
+### 3.4. Description des entités
 
 | Entité        | Description                         | Relations                                                            | Règles Métier                     |
 | ------------- | ----------------------------------- | -------------------------------------------------------------------- | --------------------------------- |
@@ -280,7 +280,7 @@ classDiagram
 Expose les endpoints REST pour la gestion des joueurs (Player).  
 Toutes les routes sont documentées avec Swagger/OpenAPI et sécurisées par Spring Security.
 
-#### Endpoints principaux :
+#### 6.1 Endpoints principaux :
 
 * `GET /api/players`  
   Récupère la liste de tous les joueurs.
@@ -367,7 +367,7 @@ public class PlayerRoute {
 
 ---
 
-### 6.3. SwaggerRoute
+### 6.2. SwaggerRoute
 #### Description :
 Expose les endpoints REST pour la gestion Swagger/OpenAPI.
 
@@ -398,7 +398,7 @@ public class SwaggerResource {
 
 ---
 
-## 6. Client REST → Spring REST Controller → Service → Repository → Modèle → BDD ...
+## 7. Client REST → Spring REST Controller → Service → Repository → Modèle → BDD ...
 
 ```mermaid
 sequenceDiagram
@@ -425,7 +425,7 @@ sequenceDiagram
 >>Swagger UI ou tout client REST (Postman, curl, etc.) remplace la couche JSP/Servlet. Les routes REST (dans rest/, ex: PlayerRoute) reçoivent les requêtes HTTP. La logique métier est dans la couche service/ (ex: PlayersService). La persistance est gérée par les repositories Spring Data JPA (repository/). La base de données est accédée via JPA/Hibernate. Les réponses sont renvoyées en JSON via les contrôleurs REST, et documentées/interactives grâce à Swagger/OpenAPI.
 ---
 
-## 7. Couche Web (Swagger)
+## 8. Couche Web (Swagger)
 
 #### Exemple : Screenshots de la documentation Swagger :
 
@@ -435,7 +435,7 @@ sequenceDiagram
 
 ---
 
-## 8. Components Web (HTML/CSS)
+## 9. Components Web (HTML/CSS)
 
 * **HTML** : affichage dynamique des listes et formulaires (`allPlayers.html`, `allQuizzes.html`, `playerForm.html`, `quizForm.html`)
 * **CSS** : styles pour formulaires et listes (`allPlayersForm.css`, `playerForm.css`)
@@ -449,9 +449,9 @@ Exemple : Screenshots des pages jsp quiz/player ... :
 
 ---
 
-## 9. Logique métier détaillée
+## 10. Logique métier détaillée
 
-### 9.1. Players
+### 10.1. Players
 
 * TEACHER :
 
@@ -462,13 +462,13 @@ Exemple : Screenshots des pages jsp quiz/player ... :
     * Peut participer aux quizzes
     * Ne peut pas être auteur
 
-### 9.2. Quizzes
+### 10.2. Quizzes
 
 * Contient Questions et réponses possibles
 * Lié à un Player (auteur)
 * Participation et score calculé côté ParticipationService
 
-### 9.3. Participation
+### 10.3. Participation
 
 * Liée à Player et Quiz
 * Contient le score final
@@ -476,16 +476,16 @@ Exemple : Screenshots des pages jsp quiz/player ... :
 
 ---
 
-## 9. MapStruct et sérialisation des objets
+## 11. MapStruct et sérialisation des objets
 
-### 9.1. Introduction
+### 11.1. Introduction
 
 Dans ce projet, la conversion entre les entités JPA (modèle de la base de données) et les objets de transfert de données (DTO) est automatisée grâce à **MapStruct**.  
 MapStruct est un framework Java de mapping qui génère automatiquement le code de conversion entre différents types d’objets, ce qui évite le code répétitif et réduit les erreurs.
 
 ---
 
-### 9.2. Déclaration des mappers
+### 11.2. Déclaration des mappers
 
 Chaque entité principale possède une interface Mapper annotée avec `@Mapper(componentModel = "spring")`.  
 Exemple pour `Player` :
@@ -505,7 +505,7 @@ public interface PlayerMapper {
 * `toDtoList` : convertit une liste d’entités vers une liste de DTO
 * `toEntityList` : convertit une liste de DTO vers une liste d’entités7
 
-### 9.2. Utilisation dans le service
+### 11.3. Utilisation dans le service
 
 Les mappers sont injectés automatiquement par Spring et utilisés dans les services pour transformer les objets :
 
@@ -520,13 +520,13 @@ List<PlayerDto> dtos = playerMapper.toDtoList(playerRepository.findAll());
 Player entity = playerMapper.toEntity(dto);
 ```
 
-### 9.3. Fonctionnement de la sérialisation
+### 11.4. Fonctionnement de la sérialisation
 
 * `Entrée API `: Les contrôleurs REST reçoivent des objets DTO (ex : PlayerDto) en JSON.
 * `Service :` Le service convertit le DTO en entité JPA avec le mapper, puis effectue la logique métier et la persistance.
 * `Sortie API `: Les entités récupérées sont converties en DTO via le mapper, puis renvoyées en JSON au client.
 
-### 9.5. Exemple complet
+### 11.5. Exemple complet
 Supposons que l’on veuille retourner tous les joueurs :
 
 ```java
@@ -538,23 +538,71 @@ public ResponseEntity<List<PlayerDto>> getAllPlayers() {
 }
 ```
 
-### 9.6. Avantages
+### 11.6. Avantages
 * `Automatisation` : plus besoin d’écrire manuellement les conversions
 * `Lisibilité` : le code métier reste clair et centré sur la logique fonctionnelle
 * `Performance` : MapStruct génère du code Java natif, donc très rapide
 
-### 9.7. Liste des mappers du projet
+### 11.7. Liste des mappers du projet
 * `PlayerMapper` : Player ↔ PlayerDto
 * `QuizMapper` : Quiz ↔ QuizDto
 * `QuestionMapper` : Question ↔ QuestionDto
 * `ParticipationMapper` : Participation ↔ ParticipationDto
 * `ResponseMapper` : Response ↔ ResponseDto
 
----
+-----
 
-## 10. Sécurité Spring Boot : Configuration, Contrôleurs et Usage
+## 12. Lombok pour la Rédondance de Code
 
-### 10.1. Architecture de la sécurité
+**Exemple pour l'Entité `Player` :**
+
+```java
+package com.example.springtp.domain;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+// ... autres imports ...
+
+@Entity
+@Getter // Génère tous les getters
+@Setter // Génère tous les setters
+@NoArgsConstructor // Requis par JPA pour la création de proxy
+@ToString(exclude = {"quizzes", "participations"}) // Exclut les collections de la méthode toString()
+@EqualsAndHashCode(exclude = {"quizzes", "participations"}) // Exclut les collections de equals/hashCode
+@AllArgsConstructor // Constructeur avec tous les arguments
+public class Player implements Serializable {
+
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @Column(length = 100)
+    private String name;
+    private String role;
+    private String email;
+
+    // Relations exclues de ToString et EqualsAndHashCode :
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
+    private List<Quiz> quizzes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
+    private List<Participation> participations = new ArrayList<>();
+
+    // Constructeur personnalisé conservé
+    public Player(String name, String role, String email) { /* ... */ }
+}
+```
+
+* **`@Getter`, `@Setter`**: Remplacent toutes les méthodes d'accès manuelles.
+* **`@NoArgsConstructor`**: Indispensable pour la création d'instances par JPA.
+* **`@ToString(exclude = {..})`** et **`@EqualsAndHashCode(exclude = {..})`**: Ces exclusions sont **obligatoires** sur les relations bidirectionnelles pour garantir la stabilité de l'application (prévention de l'exception `StackOverflowError` et des problèmes de *Lazy Loading*).
+
+-----
+
+## 13. Sécurité Spring Boot : Configuration, Contrôleurs et Usage
+
+### 13.1. Architecture de la sécurité
 
 ```mermaid
 flowchart TD
@@ -591,13 +639,13 @@ Légende :
     * Le rôle est extrait du JWT envoyé par le client (Postman, Swagger UI…).
 
 
-### 10.3. Utilisation en développement
+### 13.2. Utilisation en développement
 
 * Pour bypasser la sécurité (tests sans authentification), activez le profil dev:
   * Dans `application.properties`: `spring.profiles.active=dev`
   * Toutes les routes deviennent accessibles sans token ni rôle.
 
-### 10.4. Utilisation en production
+### 13.3. Utilisation en production
 
 * En production (profil par défaut), la sécurité est activée:
   * Les routes `/teacher/**` sont accessibles uniquement aux utilisateurs avec le rôle `TEACHER`.
@@ -606,7 +654,7 @@ Légende :
   * Un `token JWT` valide doit être envoyé dans l’en-tête `Authorization: Bearer <token>`.
 
 
-### 10.5. Exemple d’appel sécurisé avec Postman
+### 13.4. Exemple d’appel sécurisé avec Postman
 
 Requête: 
 ```shell
@@ -618,13 +666,13 @@ Réponse:
 Si le token est valide et contient le rôle requis, la réponse JSON s’affiche. Sinon, une erreur 403 ou 401 est retournée.
 ```
 
-### 10.6. Capture d’écran Postman
+### 13.5. Capture d’écran Postman
 Exemple Postman avec token JWT valide
 
 ![Logo ISTIC](src/main/resources/static/images/postman.png)
 
 
-### 10.7. Résumé
+### 13.6. Résumé
 * Sécurité stricte en production, ouverte en dev.
 * Les rôles sont extraits du JWT et utilisés dans les annotations @PreAuthorize.
 * Les contrôleurs REST et MVC sont protégés selon le rôle utilisateur.
@@ -632,7 +680,7 @@ Exemple Postman avec token JWT valide
 
 ---
 
-## 11. Spring AOP (Aspects)
+## 14. Spring AOP (Aspects)
 
 ### Introduction
 
@@ -701,7 +749,7 @@ public Object checkSecurity(ProceedingJoinPoint pjp) throws Throwable {
 
 ---
 
-## 12. Exemple d’utilisation
+## 15. Exemple d’utilisation
 
 ```        
 sudo docker run --name some-mysql  -p 3306:3306 -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql:latest

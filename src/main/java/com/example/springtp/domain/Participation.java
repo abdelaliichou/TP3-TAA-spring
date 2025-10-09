@@ -4,12 +4,15 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-
+import lombok.*;
 import java.io.Serializable;
 
-// class to link a player with a quiz that he played
-
 @Entity
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class Participation implements Serializable {
 
     @Id
@@ -26,9 +29,6 @@ public class Participation implements Serializable {
     @ManyToOne
     private Quiz quiz;
 
-
-    public Participation() {}
-
     public Participation(
             String nickname,
             int score
@@ -37,49 +37,4 @@ public class Participation implements Serializable {
         this.score=  score;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNickName() {
-        return nickname;
-    }
-    public void setNickName(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public int getScore() {
-        return this.score;
-    }
-    public void setScore(int score) {
-        this.score = score;
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public Player getPlayer() {
-        return player;
-    }
-
-    public void setPlayer(Player player) {
-        this.player = player;
-    }
-
-    public Quiz getQuiz() {
-        return quiz;
-    }
-
-    public void setQuiz(Quiz quiz) {
-        this.quiz = quiz;
-    }
 }
