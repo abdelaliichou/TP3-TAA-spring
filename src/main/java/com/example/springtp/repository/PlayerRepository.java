@@ -21,7 +21,6 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
     @Query(SQLQueries.playerFindParticipationsByPlayer)
     List<Participation> findParticipationsByPlayer(Long playerId);
 
-    @Query(SQLQueries.playerAuthenticate)
     boolean existsByEmail(String email);
 
 }

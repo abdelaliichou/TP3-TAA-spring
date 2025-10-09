@@ -1,0 +1,55 @@
+version: '3.9'
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: some-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+      MYSQL_DATABASE: mydatabase
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - springnet
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: myadmin
+    restart: always
+    environment:
+      PMA_HOST: some-mysql
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+    ports:
+      - "8082:80"
+    depends_on:
+      - mysql
+    networks:
+      - springnet
+
+  spring-app:
+    build: .
+    container_name: springtp-app
+    restart: always
+    ports:
+      - "9000:9000"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://some-mysql:3306/mydatabase?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: my-secret-pw
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQLDialect
+    depends_on:
+      - mysql
+    networks:
+      - springnet
+
+volumes:
+  mysql_data:
+
+networks:
+  springnet:
+    driver: bridge

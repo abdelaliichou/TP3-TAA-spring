@@ -749,26 +749,9 @@ public Object checkSecurity(ProceedingJoinPoint pjp) throws Throwable {
 
 ---
 
-## 15. Exemple d’utilisation
+## Lancer l’application avec docker
 
-```        
-sudo docker run --name some-mysql  -p 3306:3306 -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql:latest
-sudo docker run --name myadmin -d --link some-mysql:db -p 8082:80 phpmyadmin
-sudo docker start some-mysql myadmin
-./run-hsqldb-server.sh     
-./show-hsqldb.sh   
-```
-
-#### Lancer l’application
-
-| Task                           | Command                            |
-|--------------------------------| ---------------------------------- |
-| Run the app during development | `./mvnw spring-boot:run`           |
-| Build JAR for deployment       | `./mvnw clean package`             |
-| Skip tests during build        | `./mvnw clean package -DskipTests` |
-| Clean & build project          | `./mvnw clean install`             |
-| Check dependencies             | `./mvnw dependency:tree`           |
-
+`docker compose up --build`
 
 1. Accéder à `http://localhost:9000/view/player` pour gérer les joueurs
 2. Accéder à `http://localhost:9000/view/quiz` pour gérer les quizzes
@@ -783,23 +766,3 @@ Exemple : Screenshots aprés lancement de tout ... :
 
 ---
 
-WE ADD KEYCLAOCK CONF AUTOMATION
-WE ADD HOW TO RUN EVERYTHING IN DOCKER
-
----
-## Big Picture
-
-| Feature            | Old Spring (manual)                 | New Spring Boot + Spring Data JPA  |
-| ------------------ | ----------------------------------- | ---------------------------------- |
-| **DAO/Repository** | Hand-coded DAO with `EntityManager` | `JpaRepository` interface          |
-| **Queries**        | Manual JPQL/SQL                     | Method names + `@Query`            |
-| **DI**             | `@Autowired` fields / XML           | Constructor injection              |
-| **EntityManager**  | Explicit use                        | Hidden behind Spring Data          |
-| **Beans**          | Declared manually                   | Auto-scanned by Boot               |
-| **Interfaces**     | Often skipped                       | Always injected, proxies generated |
-| **Aspects**        | Manual or XML                       | Declarative `@Aspect`              |
-| **Transactions**   | Manual / XML                        | `@Transactional`                   |
-| **Startup**        | External server (WAR)               | Embedded server (fat JAR)          |
-| **Focus**          | Boilerplate & plumbing              | Business logic                     |
-
----
